@@ -2,35 +2,15 @@ import React, { useState, useEffect } from 'react'
 import './App.css';
 import { FormControl, MenuItem, Select } from '@material-ui/core';
 import axios from 'axios'
+import InfoBox from './InfoBox';
+import Map from './Map';
+import Card from '@material-ui/core/Card';
+import { CardContent } from '@material-ui/core';
 
 function App() {
   const [countries, setCountries] = useState([])
   const [city, setCity] = useState('worldwide')
 
-  // loads when the components load and never after
-  // with fetch
-
-  // useEffect(() => {
-  //   const getCountriesData = async () => {
-  //     await fetch('https://disease.sh/v3/covid-19/countries')
-  //       .then((response) => response.json())
-  //       .then((data) => {
-  //         const countries = data.map((country) => {
-  //           return (
-  //             {
-  //               name: country.country, // united states,india...
-  //               value: country.countryInfo.iso2 //country code UK,USA,IN..
-  //             }
-  //           )
-  //         })
-  //         setCountries(countries)
-  //       })
-  //   }
-  //   getCountriesData()
-
-  // }, [])
-
-  // axios
   useEffect(() => {
     const getCountriesData = async () => {
       const fetchedCountriesData = await axios.get('https://disease.sh/v3/covid-19/countries')
@@ -47,12 +27,10 @@ function App() {
     }
     getCountriesData()
   }, [])
-
   // all countries (object ->>name and value)
   // console.log(countries);
 
   // to handle which country we have clicked
-
   const onCountryChange = (e) => {
     const countryCode = e.target.value
     // console.log(e.target);
@@ -61,40 +39,51 @@ function App() {
 
   return (
     <div className="app">
-      <div className='app__header'>
-        <h1>covid-19 tracker</h1>
-        <FormControl className='app__dropdown'>
-          <Select
-            value={city}  //default value and  this will change when we select from dropdown
-            variant='outlined'
-            onChange={onCountryChange}
-          >
-            {/**loop through all the countries for the options */}
-            <MenuItem value='worldwide'>WorldWide</MenuItem>  {/*this  will be shown by default*/}
-            {
-              countries.map((country) => {
-                return (
-                  <MenuItem value={country.value}>{country.name}</MenuItem>
-                )
-              })
-            }
-          </Select>
-        </FormControl>
+      {/**left part */}
+      <div className='app__left'>
+        <div className='app__header'>
+          <h1>covid-19 tracker</h1>
+          <FormControl className='app__dropdown'>
+            <Select
+              value={city}  //default value and  this will change when we select from dropdown
+              variant='outlined'
+              onChange={onCountryChange}
+            >
+              {/**loop through all the countries for the options */}
+              <MenuItem value='worldwide'>WorldWide</MenuItem>  {/*this  will be shown by default*/}
+              {
+                countries.map((country) => {
+                  return (
+                    <MenuItem value={country.value}>{country.name}</MenuItem>
+                  )
+                })
+              }
+            </Select>
+          </FormControl>
+        </div>
+
+        <div className='app__stats'>
+          <InfoBox title='coronovirus cases' cases={123} total={2000} />
+          <InfoBox title='coronovirus recovered' cases={465} total={100} />
+          <InfoBox title='coronovirus deaths' cases={456} total={50} />
+        </div>
+        {/**box for cases */}
+        {/**box for recovered */}
+        {/**box for deaths */}
+
+        {/** map*/}
+        <Map />
       </div>
 
-
-
-      {/**header */}
-      {/**title+ dropdown for country */}
-
-      {/**box for recovered */}
-      {/**box for cases */}
-      {/**box for deaths */}
-
-      {/** table*/}
-      {/** graph*/}
-
-      {/** map*/}
+      {/**right part */}
+      <Card className='app__right'>
+        <CardContent>
+          <h3>live cases</h3>
+          {/** table*/}
+          <h3>world wide</h3>
+          {/** graph*/}
+        </CardContent>
+      </Card>
 
     </div>
   );
