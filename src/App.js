@@ -10,6 +10,7 @@ import { CardContent } from '@material-ui/core';
 function App() {
   const [countries, setCountries] = useState([])
   const [city, setCity] = useState('worldwide')
+  const [countryInfo, setCountryInfo] = useState({})
 
   useEffect(() => {
     const getCountriesData = async () => {
@@ -30,12 +31,45 @@ function App() {
   // all countries (object ->>name and value)
   // console.log(countries);
 
+  useEffect(() => {
+    const fetchWorldwide = async () => {
+      const fetchWorldData = await axios.get('https://disease.sh/v3/covid-19/all')
+      // console.log(fetchWorldData.data); //object
+      setCountryInfo({
+        todayCases: fetchWorldData.data.todayCases,
+        todayDeaths: fetchWorldData.data.todayDeaths,
+        todayRecovered: fetchWorldData.data.todayRecovered,
+        deaths: fetchWorldData.data.deaths,
+        cases: fetchWorldData.data.cases,
+        recovered: fetchWorldData.data.recovered
+      })
+    }
+    fetchWorldwide()
+  }, [])
+
   // to handle which country we have clicked
-  const onCountryChange = (e) => {
+  const onCountryChange = async (e) => {
     const countryCode = e.target.value
     // console.log(e.target);
+    const url = countryCode === 'worldwide'
+      ? 'https://disease.sh/v3/covid-19/all' //on initial app load it does not fetch data from it
+      : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
+
+    const fetchedCountryData = await axios.get(url)
+    // console.log(fetchedCountryData.data); //object
     setCity(countryCode)
+
+    // or we can store the whole object in our state and use it directly instead of saving key value pairs
+    setCountryInfo({
+      todayCases: fetchedCountryData.data.todayCases,
+      todayDeaths: fetchedCountryData.data.todayDeaths,
+      todayRecovered: fetchedCountryData.data.todayRecovered,
+      deaths: fetchedCountryData.data.deaths,
+      cases: fetchedCountryData.data.cases,
+      recovered: fetchedCountryData.data.recovered
+    })
   }
+  // console.log(countryInfo);
 
   return (
     <div className="app">
@@ -63,9 +97,21 @@ function App() {
         </div>
 
         <div className='app__stats'>
-          <InfoBox title='coronovirus cases' cases={123} total={2000} />
-          <InfoBox title='coronovirus recovered' cases={465} total={100} />
-          <InfoBox title='coronovirus deaths' cases={456} total={50} />
+          <InfoBox
+            title='coronovirus cases'
+            cases={countryInfo.todayCases}
+            total={countryInfo.cases}
+          />
+          <InfoBox
+            title='coronovirus recovered'
+            cases={countryInfo.todayRecovered}
+            total={countryInfo.recovered}
+          />
+          <InfoBox
+            title='coronovirus deaths'
+            cases={countryInfo.todayDeaths}
+            total={countryInfo.deaths}
+          />
         </div>
         {/**box for cases */}
         {/**box for recovered */}
