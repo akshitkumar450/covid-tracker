@@ -6,11 +6,14 @@ import InfoBox from './InfoBox';
 import Map from './Map';
 import Card from '@material-ui/core/Card';
 import { CardContent } from '@material-ui/core';
+import Table from './Table';
+import { sortData } from './utils';
 
 function App() {
   const [countries, setCountries] = useState([])
   const [city, setCity] = useState('worldwide')
   const [countryInfo, setCountryInfo] = useState({})
+  const [tableData, setTableData] = useState([])
 
   useEffect(() => {
     const getCountriesData = async () => {
@@ -24,12 +27,21 @@ function App() {
           }
         )
       })
+
+      // we have to sort it of bases of no of cases
+      const sortedData = sortData(fetchedCountriesData.data)
+      setTableData(sortedData)
+
+      // unsorted data
+      // setTableData(fetchedCountriesData.data)
+
       setCountries(fetchedCountries)
     }
     getCountriesData()
   }, [])
   // all countries (object ->>name and value)
   // console.log(countries);
+  // console.log(tableData);
 
   useEffect(() => {
     const fetchWorldwide = async () => {
@@ -52,7 +64,7 @@ function App() {
     const countryCode = e.target.value
     // console.log(e.target);
     const url = countryCode === 'worldwide'
-      ? 'https://disease.sh/v3/covid-19/all' //on initial app load it does not fetch data from it
+      ? 'https://disease.sh/v3/covid-19/all' //on initial app load it does not fetch data from it ,to do it make request in useEffect
       : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
 
     const fetchedCountryData = await axios.get(url)
@@ -113,9 +125,6 @@ function App() {
             total={countryInfo.deaths}
           />
         </div>
-        {/**box for cases */}
-        {/**box for recovered */}
-        {/**box for deaths */}
 
         {/** map*/}
         <Map />
@@ -126,6 +135,8 @@ function App() {
         <CardContent>
           <h3>live cases</h3>
           {/** table*/}
+          <Table countries={tableData} />
+
           <h3>world wide</h3>
           {/** graph*/}
         </CardContent>

@@ -1,0 +1,21 @@
+.table {
+  margin-top: 20px;
+  /* for scrolling we need to give a height */
+  height: 400px;
+  overflow: scroll;
+  color: #6a5d5d;
+}
+
+.table tr:nth-of-type(odd) {
+  background-color: lightgray;
+}
+
+/* fo mobile view */
+.table tr {
+  display: flex;
+  justify-content: space-between;
+}
+
+.table tr td {
+  padding: 5px;
+}
