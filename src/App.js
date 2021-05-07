@@ -7,14 +7,23 @@ import Map from './Map';
 import Card from '@material-ui/core/Card';
 import { CardContent } from '@material-ui/core';
 import Table from './Table';
-import { sortData } from './utils';
+import { prettyPrintStat, sortData } from './utils';
 import LineGraph from './LineGraph';
+import "leaflet/dist/leaflet.css"
 
 function App() {
   const [countries, setCountries] = useState([])
   const [city, setCity] = useState('worldwide')
   const [countryInfo, setCountryInfo] = useState({})
   const [tableData, setTableData] = useState([])
+
+  const [mapCenter, setMapCenter] = useState({
+    lat: 34.80746,
+    lng: -40.4796
+  })
+  const [zoom, setZoom] = useState(3)
+  const [mapCountries, setMapCountries] = useState([])
+  const [casesType, setCasesType] = useState('cases')
 
   useEffect(() => {
     const getCountriesData = async () => {
@@ -29,6 +38,7 @@ function App() {
         )
       })
 
+      // console.log(fetchedCountriesData.data);
       // we have to sort it of bases of no of cases
       const sortedData = sortData(fetchedCountriesData.data)
       setTableData(sortedData)
@@ -37,6 +47,7 @@ function App() {
       // setTableData(fetchedCountriesData.data)
 
       setCountries(fetchedCountries)
+      setMapCountries(fetchedCountriesData.data)
     }
     getCountriesData()
   }, [])
@@ -69,9 +80,10 @@ function App() {
       : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
 
     const fetchedCountryData = await axios.get(url)
-    // console.log(fetchedCountryData.data); //object
+    //console.log(fetchedCountryData.data); //object
+    setMapCenter([fetchedCountryData.data.countryInfo.lat, fetchedCountryData.data.countryInfo.long])
+    setZoom(6)
     setCity(countryCode)
-
     // or we can store the whole object in our state and use it directly instead of saving key value pairs
     setCountryInfo({
       todayCases: fetchedCountryData.data.todayCases,
@@ -111,36 +123,42 @@ function App() {
 
         <div className='app__stats'>
           <InfoBox
+            isRed={true}
+            active={casesType === 'cases'}
+            onClick={(e) => setCasesType('cases')}
             title='coronovirus cases'
-            cases={countryInfo.todayCases}
-            total={countryInfo.cases}
+            cases={prettyPrintStat(countryInfo.todayCases)}
+            total={prettyPrintStat(countryInfo.cases)}
           />
           <InfoBox
+            active={casesType === 'recovered'}
+            onClick={(e) => setCasesType('recovered')}
             title='coronovirus recovered'
-            cases={countryInfo.todayRecovered}
-            total={countryInfo.recovered}
+            cases={prettyPrintStat(countryInfo.todayRecovered)}
+            total={prettyPrintStat(countryInfo.recovered)}
           />
           <InfoBox
+            isRed={true}
+            active={casesType === 'deaths'}
+            onClick={(e) => setCasesType('deaths')}
             title='coronovirus deaths'
-            cases={countryInfo.todayDeaths}
-            total={countryInfo.deaths}
+            cases={prettyPrintStat(countryInfo.todayDeaths)}
+            total={prettyPrintStat(countryInfo.deaths)}
           />
         </div>
 
-        {/** map*/}
-        <Map />
+        {/**inital center and zoom of the map when it loads */}
+        <Map countries={mapCountries} casesType={casesType} center={mapCenter} zoom={zoom} />
       </div>
 
       {/**right part */}
       <Card className='app__right'>
         <CardContent>
           <h3>live cases</h3>
-          {/** table*/}
           <Table countries={tableData} />
 
-          <h3>world wide</h3>
-          {/** graph*/}
-          <LineGraph />
+          <h3>world wide {casesType}</h3>
+          <LineGraph casesType={casesType} />
         </CardContent>
       </Card>
 

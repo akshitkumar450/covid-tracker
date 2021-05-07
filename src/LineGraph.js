@@ -25,7 +25,7 @@ const options = {
     scales: {
         xAxes: [
             {
-                type: 'time',
+                title: 'time',
                 time: {
                     format: 'MM/DD/YY',
                     tooltipFormat: 'll'
@@ -67,13 +67,12 @@ function LineGraph({ casesType = 'cases' }) {
         return chartData
     }
 
-    //  https://disease.sh/v3/covid-19/historical/all?lastdays=120
     useEffect(() => {
         const lastDays = async () => {
             const lastData =
                 await axios.get('https://disease.sh/v3/covid-19/historical/all?lastdays=120')
             // console.log(lastData.data.cases);
-            const chartData = buildChartData(lastData.data)
+            const chartData = buildChartData(lastData.data, casesType)
             setData(chartData)
         }
         lastDays()

@@ -16,6 +16,16 @@ body {
   flex: 0.9;
 }
 
+.app__right {
+  display: flex;
+  flex-direction: column;
+}
+
+.app__header > h1 {
+  color: rgb(238, 23, 23);
+  font-size: 2rem;
+}
+
 .app__header {
   display: flex;
   align-items: center;
@@ -27,7 +37,9 @@ body {
   display: flex;
   justify-content: space-between;
 }
-
+.app__dropdown {
+  background-color: white;
+}
 @media (max-width: 990px) {
   .app {
     flex-direction: column;
